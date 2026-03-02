@@ -1,0 +1,16 @@
+{
+  "name": "@zieglr/npm-release-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ziegler-daniel/npm-release-test.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ziegler-daniel/npm-release-test/issues"
+  },
+  "homepage": "https://github.com/ziegler-daniel/npm-release-test#readme"
+}

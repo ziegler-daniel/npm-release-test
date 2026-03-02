@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          registry-url: "https://registry.npmjs.org"
+          cache: 'npm'
+
+      - name: Read version
+        id: readVersion
+        run: |
+          echo "name=$(node -p \"require('./package.json').name\")" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+
+      - name: Check if version exists
+        id: checkVersion
+        run: |
+          if npm view "${{ steps.readVersion.outputs.name }}@${{ steps.readVersion.outputs.version }}" version >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Version ${{ steps.readVersion.outputs.version }} already exists in registry."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Version ${{ steps.readVersion.outputs.version }} not found in registry; will publish."
+          fi
+
+      - run: npm ci
+        if: steps.checkVersion.outputs.exists == 'false'
+
+      - run: npm publish
+        if: steps.checkVersion.outputs.exists == 'false'
+
+      - name: Github release
+        uses: softprops/action-gh-release@v2
+        if: steps.checkVersion.outputs.exists == 'false'
+        with:
+          name: Release v${{ steps.readVersion.outputs.version }}
+          tag_name: v${{ steps.readVersion.outputs.version }}
+          prerelease: ${{ contains(github.head_ref, 'alpha') }}
