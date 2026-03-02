@@ -40,6 +40,8 @@ jobs:
             echo "Version ${{ steps.readVersion.outputs.version }} not found in registry; will publish."
           fi
 
+      - run: npm --version
+
       - run: npm ci
         if: steps.checkVersion.outputs.exists == 'false'
 
